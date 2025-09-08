@@ -1,6 +1,0 @@
-kaggle
-timm==0.9.16
-fastervit
-albumentations --no-binary qudida,albumentations
-torch==2.1.2 
-torchvision==0.16.2
