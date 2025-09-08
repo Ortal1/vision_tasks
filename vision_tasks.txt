@@ -1,0 +1,265 @@
+מצוין 🙌
+אני אבנה לך עכשיו **מסמך מסודר**:
+
+* לכל משימה:
+
+  1. **הסבר** (מה המשימה ולמה היא חשובה).
+  2. **מודל מלא (PyTorch)** – עם הערות על **צורות ה־input וה־output** בכל שלב.
+  3. **Loss** ולמה הוא מתאים.
+  4. **מודלים גדולים מהעולם**.
+  5. **שאלות מקצועיות שיכולים לשאול אותך** בראיון על המשימה.
+
+אני גם אוסיף כמה משימות נוספות מעבר למה שכבר כתבנו:
+
+* Classification (בסיסי, להשוואה)
+* Object Detection
+* Semantic Segmentation
+* Instance Segmentation
+* Depth Estimation
+* Optical Flow
+* Lane Detection
+* Trajectory Prediction
+* Anomaly Detection
+* Image Captioning (משימה מולטימודלית)
+* Super-Resolution (שחזור תמונה)
+* Image Inpainting (השלמת פיקסלים חסרים)
+
+---
+
+# 🔥 Computer Vision Tasks
+
+---
+
+## 1. **Image Classification**
+
+**הסבר:** המשימה הפשוטה ביותר – לקבל תמונה ולהחזיר label יחיד שמתאר את הקטגוריה שלה.
+
+```python
+import torch
+import torch.nn as nn
+import torchvision.models as models
+
+# ----- Model -----
+class ImageClassifier(nn.Module):
+    def __init__(self, num_classes=10):
+        super().__init__()
+        backbone = models.resnet18(weights=None)
+        self.feature_extractor = nn.Sequential(*list(backbone.children())[:-1])  
+        # input: [B, 3, 224, 224]
+        # output: [B, 512, 1, 1]
+        self.fc = nn.Linear(512, num_classes)
+
+    def forward(self, x):
+        feats = self.feature_extractor(x)  # [B, 512, 1, 1]
+        feats = feats.view(feats.size(0), -1)  # [B, 512]
+        out = self.fc(feats)  # [B, num_classes]
+        return out
+```
+
+```python
+# ----- Loss -----
+criterion = nn.CrossEntropyLoss()
+```
+
+**למה הלוס מתאים?**
+כל sample שייך לקטגוריה אחת → CrossEntropyLoss מתאים לסיווג רב-קטגורי.
+
+**מודלים גדולים:** ResNet, EfficientNet, Vision Transformer.
+
+**שאלות מקצועיות:**
+
+* מה ההבדל בין Softmax ל-Sigmoid ב־output layer?
+* למה כדאי להשתמש ב־pretrained backbone?
+* איך מתמודדים עם dataset לא מאוזן (class imbalance)?
+
+---
+
+## 2. **Object Detection**
+
+**הסבר:** מזהה גם מה יש בתמונה וגם איפה (bounding box).
+
+```python
+class SimpleDetector(nn.Module):
+    def __init__(self, num_classes=10):
+        super().__init__()
+        backbone = models.resnet18(weights=None)
+        self.features = nn.Sequential(*list(backbone.children())[:-2])  
+        # input: [B, 3, 224, 224]
+        # output: [B, 512, 7, 7]
+        self.cls_head = nn.Linear(512, num_classes)
+        self.box_head = nn.Linear(512, 4)
+
+    def forward(self, x):
+        feats = self.features(x)  # [B, 512, 7, 7]
+        pooled = feats.mean(dim=[2, 3])  # [B, 512]
+        cls_logits = self.cls_head(pooled)  # [B, num_classes]
+        bbox = self.box_head(pooled)  # [B, 4]
+        return cls_logits, bbox
+```
+
+```python
+# ----- Loss -----
+cls_loss = nn.CrossEntropyLoss()
+bbox_loss = nn.SmoothL1Loss()
+```
+
+**למה הלוס מתאים?**
+
+* סיווג → CrossEntropyLoss.
+* רגרסיה של בוקס → SmoothL1Loss עדיף על MSE כי פחות מושפע מ־outliers.
+
+**מודלים גדולים:** YOLOv8, Faster R-CNN, DETR.
+
+**שאלות מקצועיות:**
+
+* למה צריך Anchor Boxes?
+* מה ההבדל בין two-stage (Faster R-CNN) ו־one-stage (YOLO)?
+* למה בוחרים Smooth L1 ולא L2?
+
+---
+
+## 3. **Semantic Segmentation**
+
+**הסבר:** נותנים label לכל פיקסל בתמונה.
+
+```python
+class SimpleSegmentation(nn.Module):
+    def __init__(self, num_classes=21):
+        super().__init__()
+        backbone = models.resnet18(weights=None)
+        self.encoder = nn.Sequential(*list(backbone.children())[:-2])  
+        # input: [B, 3, 224, 224]
+        # output: [B, 512, 7, 7]
+        self.decoder = nn.ConvTranspose2d(512, num_classes, 16, stride=8, padding=4)
+        # output: [B, num_classes, 224, 224]
+
+    def forward(self, x):
+        feats = self.encoder(x)  # [B, 512, 7, 7]
+        out = self.decoder(feats)  # [B, num_classes, 224, 224]
+        return out
+```
+
+```python
+criterion = nn.CrossEntropyLoss()
+```
+
+**מודלים גדולים:** DeepLabV3, SegFormer, PSPNet.
+
+**שאלות מקצועיות:**
+
+* מה ההבדל בין Semantic Segmentation ל־Instance Segmentation?
+* למה להשתמש ב־dilated convolutions?
+* איך מתמודדים עם חוסר איזון במספר הפיקסלים בין מחלקות?
+
+---
+
+## 4. **Instance Segmentation**
+
+**הסבר:** מסווגים פיקסלים אבל גם מפרידים בין מופעים שונים של אותו אובייקט.
+
+```python
+class SimpleInstanceSeg(nn.Module):
+    def __init__(self, num_classes=10):
+        super().__init__()
+        backbone = models.resnet18(weights=None)
+        self.encoder = nn.Sequential(*list(backbone.children())[:-2])  
+        self.mask_head = nn.Conv2d(512, num_classes, kernel_size=1)
+        self.box_head = nn.Linear(512, 4)
+
+    def forward(self, x):
+        feats = self.encoder(x)  # [B, 512, 7, 7]
+        pooled = feats.mean(dim=[2,3])  # [B, 512]
+        boxes = self.box_head(pooled)  # [B, 4]
+        masks = self.mask_head(feats)  # [B, num_classes, 7, 7]
+        return boxes, masks
+```
+
+```python
+cls_loss = nn.CrossEntropyLoss()
+bbox_loss = nn.SmoothL1Loss()
+mask_loss = nn.BCEWithLogitsLoss()
+```
+
+**מודלים גדולים:** Mask R-CNN, YOLACT, SOLOv2.
+
+**שאלות מקצועיות:**
+
+* איך מפרידים מופעים שונים מאותו class?
+* למה BCEWithLogitsLoss למסכה ולא CrossEntropyLoss?
+* מה ההבדל בין ROI Pooling ל־ROI Align?
+
+---
+
+## 5. **Depth Estimation**
+
+**הסבר:** מחזירים ערך עומק לכל פיקסל (distance מהמצלמה).
+
+```python
+class DepthEstimation(nn.Module):
+    def __init__(self):
+        super().__init__()
+        backbone = models.resnet18(weights=None)
+        self.encoder = nn.Sequential(*list(backbone.children())[:-2])
+        self.decoder = nn.ConvTranspose2d(512, 1, 16, stride=8, padding=4)
+        # input: [B, 3, 224, 224]
+        # output: [B, 1, 224, 224]
+
+    def forward(self, x):
+        feats = self.encoder(x)
+        depth = self.decoder(feats)
+        return depth
+```
+
+```python
+criterion = nn.L1Loss()
+```
+
+**מודלים גדולים:** Monodepth2, DPT.
+
+**שאלות מקצועיות:**
+
+* למה L1Loss עדיף על L2 בעומק?
+* איך אפשר להוסיף supervision חלקי כשאין ground truth מלא?
+* מה ההבדל בין monocular depth ל־stereo depth?
+
+---
+
+## 6. **Optical Flow**
+
+**הסבר:** מודדים את תנועת הפיקסלים בין שתי תמונות עוקבות.
+
+```python
+class OpticalFlowNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.encoder = nn.Conv2d(6, 64, 7, stride=2, padding=3)
+        self.decoder = nn.ConvTranspose2d(64, 2, 16, stride=8, padding=4)
+        # input: [B, 6, 224, 224] (2 תמונות יחד)
+        # output: [B, 2, 224, 224] (dx, dy לכל פיקסל)
+
+    def forward(self, img1, img2):
+        x = torch.cat([img1, img2], dim=1)
+        feats = self.encoder(x)
+        flow = self.decoder(feats)
+        return flow
+```
+
+```python
+criterion = nn.MSELoss()
+```
+
+**מודלים גדולים:** FlowNet2, RAFT.
+
+**שאלות מקצועיות:**
+
+* למה output הוא 2-ערוצים?
+* מה ההבדל בין forward flow ו-backward flow?
+* איך בודקים ביצועים (EPE metric)?
+
+---
+
+(יש עוד: Lane Detection, Trajectory Prediction, Anomaly Detection, Captioning, SR, Inpainting – אני אמשיך בסגנון הזה אם תרצה).
+
+---
+
+רוצה שאמשיך ואבנה לך את **כל שאר המשימות** באותו פורמט מסודר (כולל lane detection, captioning, inpainting וכו') או שנתמקד בכמה ספציפיות שמעניינות אותך לראיון?

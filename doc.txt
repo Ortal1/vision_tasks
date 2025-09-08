@@ -1,0 +1,87 @@
+
+Enviroment:
+
+venv:
+python -m venv my_env
+my_env\Scripts\activate
+source my_env/bin/activate
+deactivate
+
+poetry:
+curl -sSL https://install.python-poetry.org | python3 -
+poetry new my_project
+cd my_project
+poetry install
+enter: poetry shell
+poetry run python my_script.py
+exit
+
+_______________________
+
+Training model in torch for example:
+https://docs.pytorch.org/tutorials/beginner/introyt/trainingyt.html
+
+
+Transforming and augmenting images:
+https://docs.pytorch.org/vision/0.22/transforms.html
+
+
+GTSRB 99% test accuracy (Pytorch)
+https://www.kaggle.com/code/chibani410/gtsrb-99-test-accuracy-pytorch
+
+ResNet50
+https://huggingface.co/microsoft/resnet-50
+
+
+One backbone to several heads:
+https://discuss.pytorch.org/t/use-one-backbone-with-different-heads/153892/3
+
+
+
+
+בוודאי! הנה רשימה מסודרת של אתרים הכי שימושיים למציאת קודים, דוגמאות, וטיפולים בבעיות בלמידה עמוקה (Deep Learning):
+
+---
+
+### **1. מאגרים של קוד ודוגמאות**
+
+* **[GitHub](https://github.com/)** – מאגר הקוד הפופולרי ביותר. חיפוש לפי מודלים, פרויקטים או ספריות.
+* **[Hugging Face](https://huggingface.co/)** – מודלים מוכנים ללמידה עמוקה, כולל NLP, ראייה ממוחשבת, דיבור ועוד, עם קוד אינפרנס ודוקומנטציה.
+* **[Papers with Code](https://paperswithcode.com/)** – שילוב של מאמרים אקדמיים עם קוד פתוח שמיישם את המודל. מצוין לראייה עמוקה, NLP, ולמידה מגובה-חיזוקים.
+
+---
+
+### **2. מסדי נתונים ודאטהסטים**
+
+* **[Kaggle](https://www.kaggle.com/)** – פרויקטים מוכנים, קוד לדאטהסטים שונים, תחרויות ומאמרי פתרונות.
+* **[UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php)** – דאטהסטים קלאסיים למטלות למידה עמוקה ומכונה.
+* **[OpenML](https://www.openml.org/)** – פלטפורמה לשיתוף דאטהסטים, מודלים וניסויים.
+
+---
+
+### **3. קורסים ותיעוד מעשי**
+
+* **[TensorFlow Tutorials](https://www.tensorflow.org/tutorials)** – מדריכים רשמיים עם דוגמאות קוד.
+* **[PyTorch Tutorials](https://pytorch.org/tutorials/)** – מדריכים רשמיים, כולל דוגמאות NLP, CV, RL ועוד.
+* **[DeepLearning.ai](https://www.deeplearning.ai/)** – קורסים מתקדמים עם קוד מוכן, במיוחד ל-NLP ולמודלים גדולים.
+
+---
+
+### **4. פורומים וקהילות**
+
+* **[Stack Overflow](https://stackoverflow.com/)** – מצוין לשאלות קוד ספציפיות או באגים.
+* **[Reddit – r/MachineLearning](https://www.reddit.com/r/MachineLearning/)** – דיונים על מאמרים, מודלים, קוד ודאטהסטים.
+* **[Hugging Face Forums](https://discuss.huggingface.co/)** – קהילה פעילה לפתרון בעיות במודלים מוכנים.
+
+---
+
+### **5. אתרים שמרכזים פרויקטים ודמו**
+
+* **[Awesome Deep Learning](https://github.com/ChristosChristofidis/awesome-deep-learning)** – רשימת לינקים למודלים, ספריות, פרויקטים, מאמרים ודאטהסטים.
+* **[Model Zoo – PyTorch / TensorFlow](https://pytorch.org/hub/)** – מאגר מודלים מוכנים לשימוש אינסטנטי.
+
+---
+
+אם את רוצה, אני יכולה להכין **גרסה מקוצרת וממוינת לפי תחום**, למשל **NLP, CV, דיבור, RL**, כך שתוכלי למצוא קוד מוכן מהר בלי לבזבז זמן.
+
+רוצה שאעשה את זה?
